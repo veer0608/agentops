@@ -1,0 +1,5 @@
+id: known-issue-dashboard
+message: "My dashboard shows a 500 error every time it loads — is this a known bug?"
+expected_tools: ["search_github_issues"]
+answer_keywords: ["GH-101"]
+expect_escalate: false

@@ -1,0 +1,5 @@
+id: plan-limits
+message: "How many API calls does the Free plan include per month?"
+expected_tools: ["search_docs"]
+answer_keywords: ["1,000"]
+expect_escalate: false

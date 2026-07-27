@@ -1,0 +1,16 @@
+id: whats-my-plan
+message: "I'm ada@example.com — what plan am I on and when does it renew?"
+conversation_customer_email: "ada@example.com"
+customers:
+  - name: "Ada Lovelace"
+    email: "ada@example.com"
+    tier: "pro"
+subscriptions:
+  - email: "ada@example.com"
+    plan: "Pro"
+    status: "active"
+    renews_at: "2026-08-01"
+    mrr_cents: 4900
+expected_tools: ["get_customer", "get_subscription"]
+answer_keywords: ["2026-08-01"]
+expect_escalate: false

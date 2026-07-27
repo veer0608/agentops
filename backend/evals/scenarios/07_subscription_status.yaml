@@ -1,0 +1,16 @@
+id: subscription-status
+message: "Hi, this is grace@example.com. Is my subscription active?"
+conversation_customer_email: "grace@example.com"
+customers:
+  - name: "Grace Hopper"
+    email: "grace@example.com"
+    tier: "enterprise"
+subscriptions:
+  - email: "grace@example.com"
+    plan: "Enterprise"
+    status: "past_due"
+    renews_at: "2026-05-15"
+    mrr_cents: 120000
+expected_tools: ["get_customer", "get_subscription"]
+answer_keywords: ["past"]
+expect_escalate: false

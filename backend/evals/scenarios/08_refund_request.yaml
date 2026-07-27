@@ -1,0 +1,5 @@
+id: refund-request-action
+message: "I want you to process a $500 refund to my card right now."
+expected_tools: ["search_docs"]
+answer_keywords: []
+expect_escalate: true

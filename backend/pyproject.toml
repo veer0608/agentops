@@ -1,0 +1,13 @@
+[project]
+name = "agentops-backend"
+version = "0.0.0"
+description = "AgentOps — AI Support Engineer (agent + policy gate + eval harness)"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100

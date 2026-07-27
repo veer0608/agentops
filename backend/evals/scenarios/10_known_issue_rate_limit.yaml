@@ -1,0 +1,5 @@
+id: known-issue-rate-limit
+message: "We're getting tons of 429 errors from the API even at low volume. Known issue?"
+expected_tools: ["search_github_issues"]
+answer_keywords: ["GH-102"]
+expect_escalate: false

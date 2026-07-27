@@ -1,0 +1,5 @@
+id: refund-policy
+message: "Can I get a refund on my annual plan?"
+expected_tools: ["search_docs"]
+answer_keywords: ["14 days"]
+expect_escalate: false

@@ -1,0 +1,5 @@
+id: cancel-subscription
+message: "How do I cancel my subscription?"
+expected_tools: ["search_docs"]
+answer_keywords: ["Billing"]
+expect_escalate: false
