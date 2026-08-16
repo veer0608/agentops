@@ -1,5 +1,7 @@
 # AgentOps — AI Support Engineer
 
+[![ci](https://github.com/veer0608/agentops/actions/workflows/ci.yml/badge.svg)](https://github.com/veer0608/agentops/actions/workflows/ci.yml)
+
 An AI support **agent** (not a chatbot) that resolves customer messages by taking real
 actions — looking up accounts, searching docs and known issues, opening tickets — behind
 a **confidence/policy gate** that decides when to act autonomously and when to hand off to

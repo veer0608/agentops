@@ -1,0 +1,40 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        # The Python project is the backend; the repo root holds the docs.
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          # 3.11 is the floor in pyproject and the version the suite is known
+          # to pass on. Widen this to a matrix once 3.12 has been seen green --
+          # a red badge on arrival would say less than no badge at all.
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install
+        run: pip install -r requirements.txt
+
+      # Covers the policy gate, the agent loop, the eval scorers, and the
+      # LangGraph/in-house runner parity check -- which is the one that would
+      # notice if the two implementations quietly stopped agreeing.
+      - name: Tests
+        run: python -m pytest -q
+
+      # No step runs the eval suite here. It needs a model, and a CI job that
+      # needs a key is a CI job that goes red for everyone who forks the repo.
+      # The scorers and the runner are covered by the tests above instead.
