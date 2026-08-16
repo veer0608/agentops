@@ -49,8 +49,5 @@ red for anyone who forks the repo. `test_eval_runner.py`, `test_eval_scorers.py`
 
 ## Environment
 
-- Shell is PowerShell; POSIX flags like `ls -la` fail there.
-- Docker cannot run on this machine (Win11 Home / VBS). Do not propose it.
-- The only live key is Groq free tier, and its real limit is tokens-per-day, which
-  appears in no response header. Anything that calls a model should assume a hard
-  daily ceiling and fail gracefully rather than mid-run.
+Machine-wide constraints (PowerShell, no Docker, Groq's invisible daily cap) live in
+`~/.claude/CLAUDE.md` and are not repeated here.
