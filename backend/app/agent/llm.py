@@ -179,7 +179,11 @@ def build_llm(settings) -> LLMClient:
         if settings.openai_api_key:
             from app.agent.openai_llm import OpenAILLMClient
 
-            return OpenAILLMClient(api_key=settings.openai_api_key, model=settings.openai_model)
+            return OpenAILLMClient(
+                api_key=settings.openai_api_key,
+                model=settings.openai_model,
+                base_url=settings.openai_base_url,
+            )
         return DemoLLMClient()
     if settings.provider == "google":
         if settings.google_api_key:
