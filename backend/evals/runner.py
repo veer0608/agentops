@@ -122,11 +122,13 @@ def run_suite(
     rows: list[dict] = []
     for sc in scenarios:
         session, conv = _setup_scenario_db(sc)
+        run_error: str | None = None
         try:
             answer = runner.run(session, conv)
             session.commit()
             m = _scenario_metrics(session, conv.id)
         except Exception as exc:  # a live API hiccup shouldn't kill the whole suite
+            run_error = str(exc)
             answer = AgentAnswer(
                 answer=f"[run error: {exc}]",
                 should_escalate=True,
@@ -168,27 +170,39 @@ def run_suite(
                 "latency_ms": m["latency_ms"],
                 "cost_usd": cost,
                 "answer": answer.answer,
+                # A call that never reached the model is not a score. Kept on the
+                # row so the report can say how many, and excluded from the
+                # aggregate below so a provider outage cannot read as a worse agent.
+                "run_error": run_error,
             }
         )
 
-    n = len(rows) or 1
+    # A scenario whose model call never landed says nothing about the agent, but
+    # it arrives shaped exactly like one the agent failed: no tools, no answer,
+    # scores zero. Averaging those in measures the provider, not the agent.
+    scored = [r for r in rows if not r["run_error"]]
+    errored = [r for r in rows if r["run_error"]]
+    n = len(scored) or 1
     labeled = [
         (r["expect_escalate"], r["did_escalate"])
-        for r in rows
+        for r in scored
         if r["expect_escalate"] is not None
     ]
-    latencies = [float(r["latency_ms"]) for r in rows]
+    latencies = [float(r["latency_ms"]) for r in scored] or [0.0]
     summary = {
         "n": len(rows),
+        "n_scored": len(scored),
+        "n_errored": len(errored),
+        "errored_scenarios": [r["id"] for r in errored],
         "model": getattr(llm, "model", "demo(offline)"),
         "runner": kind,
         "doc_search_mode": settings.doc_search_mode,
-        "tool_selection_f1": round(sum(r["tool_f1"] for r in rows) / n, 3),
-        "tool_exact_match_rate": round(sum(1 for r in rows if r["tool_exact"]) / n, 3),
-        "task_success_rate": round(sum(1 for r in rows if r["task_success"]) / n, 3),
+        "tool_selection_f1": round(sum(r["tool_f1"] for r in scored) / n, 3),
+        "tool_exact_match_rate": round(sum(1 for r in scored if r["tool_exact"]) / n, 3),
+        "task_success_rate": round(sum(1 for r in scored if r["task_success"]) / n, 3),
         "escalation_accuracy": round(score_escalation_accuracy(labeled), 3),
-        "citation_grounding": round(sum(1 for r in rows if r["citation_grounded"]) / n, 3),
-        "total_cost_usd": round(sum(r["cost_usd"] for r in rows), 6),
+        "citation_grounding": round(sum(1 for r in scored if r["citation_grounded"]) / n, 3),
+        "total_cost_usd": round(sum(r["cost_usd"] for r in scored), 6),
         "latency_p50_ms": round(_pct(latencies, 0.5), 1),
         "latency_p95_ms": round(_pct(latencies, 0.95), 1),
         "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -225,9 +239,15 @@ def _render_markdown(summary: dict, rows: list[dict]) -> str:
         "|---|---|---|---|---|---|",
     ]
     for r in rows:
+        if r.get("run_error"):
+            lines.append(
+                f"| {r['id']} | {', '.join(r['expected_tools']) or '-'} | "
+                "never reached the model | - | NOT SCORED | - |"
+            )
+            continue
         lines.append(
-            f"| {r['id']} | {', '.join(r['expected_tools']) or '—'} | "
-            f"{', '.join(r['actual_tools']) or '—'} | {r['tool_f1']:.2f} | "
+            f"| {r['id']} | {', '.join(r['expected_tools']) or '-'} | "
+            f"{', '.join(r['actual_tools']) or '-'} | {r['tool_f1']:.2f} | "
             f"{'PASS' if r['task_success'] else 'FAIL'} | "
             f"{'ok' if r['citation_grounded'] else 'HALLUC'} |"
         )
@@ -271,7 +291,12 @@ def _persist(summary: dict, report_path: str | None) -> None:
 def _print_summary(summary: dict, rows: list[dict]) -> None:
     print("=" * 60)
     print(f"AgentOps eval - model={summary['model']} runner={summary['runner']} docs={summary['doc_search_mode']}")
-    print(f"  scenarios          : {summary['n']}")
+    print(f"  scenarios          : {summary['n']} ({summary['n_scored']} scored)")
+    if summary["n_errored"]:
+        print(
+            f"  NOT SCORED         : {summary['n_errored']} never reached the model "
+            f"({', '.join(summary['errored_scenarios'])})"
+        )
     print(f"  tool-selection F1  : {summary['tool_selection_f1']}")
     print(f"  tool exact-match   : {summary['tool_exact_match_rate']}")
     print(f"  task-success rate  : {summary['task_success_rate']}")
@@ -281,6 +306,9 @@ def _print_summary(summary: dict, rows: list[dict]) -> None:
     print(f"  latency p50/p95 ms : {summary['latency_p50_ms']} / {summary['latency_p95_ms']}")
     print("-" * 60)
     for r in rows:
+        if r.get("run_error"):
+            print(f"  [ -- ] {r['id']:<24} not scored: never reached the model")
+            continue
         flag = "PASS" if r["task_success"] else "FAIL"
         print(f"  [{flag}] {r['id']:<24} f1={r['tool_f1']:.2f} tools={r['actual_tools']}")
     print("=" * 60)
