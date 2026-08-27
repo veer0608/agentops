@@ -32,6 +32,10 @@ class Settings(BaseSettings):
 
     openai_api_key: str | None = None
     openai_model: str = "gpt-4o"
+    # Any OpenAI-compatible endpoint (Groq, Together, OpenRouter, a local
+    # server). The adapter already accepts a base_url; this is the config seam
+    # that lets a run reach one without editing code.
+    openai_base_url: str | None = None
 
     anthropic_api_key: str | None = None
     anthropic_model: str = "claude-opus-5"
