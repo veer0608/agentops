@@ -105,18 +105,25 @@ them at all is the obvious next change.
 
 ### Reproducing it
 
+Add to `backend/.env`:
+
+```
+PROVIDER=groq
+GROQ_API_KEY=gsk_...
+GROQ_MODEL=openai/gpt-oss-120b
+```
+
+Then:
+
 ```bash
-printf 'PROVIDER=openai
-OPENAI_API_KEY=gsk_...
-OPENAI_MODEL=openai/gpt-oss-120b
-OPENAI_BASE_URL=https://api.groq.com/openai/v1
-' >> backend/.env
 backend/.venv/Scripts/python -m evals.runner
 ```
 
-`OPENAI_BASE_URL` points the tested OpenAI adapter at any compatible endpoint
-(Groq, Together, OpenRouter, a local server) without touching code. Leave it unset
-for OpenAI itself.
+Groq is a first-class provider reusing the tested OpenAI adapter over its
+OpenAI-compatible endpoint, with its own key and model rather than borrowing
+`OPENAI_API_KEY`. For anything else that speaks the same wire format (Together,
+OpenRouter, a local server), `OPENAI_BASE_URL` points that adapter wherever you
+like without touching code.
 
 ## Honest limitations
 

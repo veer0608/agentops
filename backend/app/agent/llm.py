@@ -185,6 +185,16 @@ def build_llm(settings) -> LLMClient:
                 base_url=settings.openai_base_url,
             )
         return DemoLLMClient()
+    if settings.provider == "groq":
+        if settings.groq_api_key:
+            from app.agent.openai_llm import OpenAILLMClient
+
+            return OpenAILLMClient(
+                api_key=settings.groq_api_key,
+                model=settings.groq_model,
+                base_url=settings.groq_base_url,
+            )
+        return DemoLLMClient()
     if settings.provider == "google":
         if settings.google_api_key:
             from app.agent.google_llm import GoogleLLMClient
