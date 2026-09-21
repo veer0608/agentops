@@ -25,7 +25,7 @@ improve` loop — not just a demo.
   `StateGraph`, behind the same interface, with the eval harness **proving they score
   identically**.
 - **Backend-grade** — FastAPI + SQLAlchemy + Alembic (SQLite dev / Postgres via URL swap),
-  structured tracing, **33 tests**.
+  structured tracing, **38 tests**.
 
 ## Offline baseline (10 scenarios, deterministic demo model)
 
@@ -52,7 +52,7 @@ python -m venv .venv
 .venv/Scripts/python -m pip install -r requirements.txt   # Windows; use .venv/bin on POSIX
 .venv/Scripts/python -m alembic upgrade head
 .venv/Scripts/python -m app.seed
-.venv/Scripts/python -m pytest                            # 33 tests
+.venv/Scripts/python -m pytest                            # 38 tests
 .venv/Scripts/python -m evals.runner                      # scorecard
 .venv/Scripts/python -m uvicorn app.api.main:app --port 8011   # then open /docs
 ```
