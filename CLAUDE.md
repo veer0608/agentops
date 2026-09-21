@@ -12,7 +12,7 @@ The repo root holds the docs (`README.md`, `ARCHITECTURE.md`, `EVAL_WRITEUP.md`)
 - `backend/app/` — `agent/` (runner, LLM seam), `observability/`, API, services
 - `backend/app/testing/` — `mock_model.py`, the deterministic client used by tests
 - `backend/evals/` — `runner.py`, `scorers.py`, `scenarios/`, `pricing.py`
-- `backend/tests/` — 33 tests
+- `backend/tests/` — 38 tests
 - `backend/alembic/` — migrations
 
 ## Commands
@@ -20,9 +20,13 @@ The repo root holds the docs (`README.md`, `ARCHITECTURE.md`, `EVAL_WRITEUP.md`)
 Run from `backend/`. Python 3.11 (the floor in `pyproject.toml`).
 
 ```bash
-pip install -r requirements.txt      # deps are here, NOT in pyproject.toml
-python -m pytest -q                  # 33 tests, no key needed
+.venv/Scripts/python -m pytest -q    # 38 tests, no key needed
 ```
+
+The venv at `backend/.venv` already has the deps (which live in
+`requirements.txt`, not `pyproject.toml`). Running the *system* python here
+fails collection on `structlog` and looks like a broken repo; it is the wrong
+interpreter.
 
 `pyproject.toml` sets `pythonpath = ["."]` and `testpaths = ["tests"]`, so pytest
 must be invoked from `backend/` or collection fails on `app` imports.
