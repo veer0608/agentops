@@ -100,8 +100,20 @@ Two consecutive runs happened to hit the same scenario, which is exactly long
 enough to mistake it for a reproducible bug.
 
 The harness records these in the row's answer as `[run error: ...]` rather than
-hiding them, which is the only reason the pattern was visible at all. Not scoring
-them at all is the obvious next change.
+hiding them, which is the only reason the pattern was visible at all.
+
+**The harness no longer scores them.** A scenario that never reached the model
+is left out of the aggregate and named instead: the scorecard prints
+`scenarios: 10 (8 scored)` and a `NOT SCORED` line listing which ones, and the
+report table marks the row `NOT SCORED` where it used to print F1 0.00.
+
+The table above was computed before that change, with all nine errored rows
+averaged in as zeros, and it has not been recomputed: the harness keeps only its
+latest scorecard, so the eight runs are not on disk to rescore. Read its F1 and task-success as
+a floor on the agent rather than an estimate of it. For a sense of the size, one
+live run that scored F1 0.77 under the old accounting scores 0.958 over the
+eight scenarios that reached the model. That is a single run, so by the argument
+of this section it is a sample and not a result.
 
 ### Reproducing it
 
